@@ -1,0 +1,28 @@
+.
+├── application         //应用目录
+│   ├── config          //配置文件
+│   ├── controller      //controller
+│   └── index.php       //统一入口
+├── bin
+│   └── family.service  //服务管理脚本，类php-fpm.service
+└── framework           //框架目录
+    └── Family
+            └── family.php      //框架主文件
+
+
+
+.
+├── application             //应用目录
+│   ├── config              //配置目录
+│   │   └── default.php     //默认配置文件
+│   ├── controller          //controller目录
+│   │   └── Index.php       //controller文件
+│   └── index.php           //统一入口
+├── bin
+│   └── family.service      //预留的服务管理脚本，类php-fpm.service
+└── framework               //框架目录
+    └── Family              //框架主目录
+        ├── Core            //框架核心类目录
+        │   ├── Config.php  //配置读取
+        │   └── Route.php   //路由管理
+        └── Family.php      //框架主文件
