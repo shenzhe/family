@@ -1,4 +1,5 @@
 <?php
+
 namespace Family\Core;
 
 
@@ -12,10 +13,19 @@ class Route
             $method = 'Index';
         } else {
             $maps = explode('/', $path);
-            $controller = $maps[1];
-            $method = $maps[2];
-        }
 
+            if (count($maps) < 2) {
+                $controller = 'Index';
+                $method = 'Index';
+            } else {
+                $controller = $maps[1];
+                if (empty($maps[2])) {
+                    $method = 'Index';
+                } else {
+                    $method = $maps[2];
+                }
+            }
+        }
         $controllerClass = "controller\\{$controller}";
         $class = new $controllerClass;
 

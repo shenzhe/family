@@ -1,8 +1,9 @@
 <?php
-//framework/Family/family.php
+//file: framework/Family/family.php
 namespace Family;
 
 use Family\Core\Config;
+use Family\Core\Log;
 use Family\Core\Route;
 use Swoole;
 
@@ -10,24 +11,64 @@ use Swoole;
 class Family
 {
 
+    /**
+     * @var 根目录
+     */
+    public static $rootPath;
+    /**
+     * @var 框架目录
+     */
+    public static $frameworkPath;
+    /**
+     * @var 程序目录
+     */
+    public static $applicationPath;
+
     final public static function run()
     {
-        //先注册自动加载
-        \spl_autoload_register(__CLASS__ . '::autoLoader');
-        //加载配置
-        Config::load();
+        try {
+            if (!defined('DS')) {
+                define('DS', DIRECTORY_SEPARATOR);
+            }
+            self::$rootPath = dirname(dirname(__DIR__));
+            self::$frameworkPath = self::$rootPath . DS . 'framework';
+            self::$applicationPath = self::$rootPath . DS . 'application';
 
-        //通过读取配置获得ip、端口等
-        $http = new Swoole\Http\Server(Config::get('host'), Config::get('port'));
-        $http->set([
-            "worker_num" => Config::get('worker_num'),
-        ]);
-        $http->on('request', function ($request, $response) {
-            //自动路由
-            $result = Route::dispatch($request->server['path_info']);
-            $response->end($result);
-        });
-        $http->start();
+            //先注册自动加载
+            \spl_autoload_register(__CLASS__ . '::autoLoader');
+            //加载配置
+            Config::load();
+
+            //日志初始化
+            Log::init();
+
+            //通过读取配置获得ip、端口等
+            $http = new Swoole\Http\Server(Config::get('host'), Config::get('port'));
+            $http->set([
+                "worker_num" => Config::get('worker_num'),
+            ]);
+            $http->on('request', function (\swoole_http_request $request, \swoole_http_response $response) {
+                try {
+                    //自动路由
+                    $result = Route::dispatch($request->server['path_info']);
+                    $response->end($result);
+                } catch (\Exception $e) { //程序异常
+                    Log::alert($e->getMessage(), $e->getTrace());
+                    $response->end($e->getMessage());
+                } catch (\Error $e) { //程序错误，如fatal error
+                    Log::emergency($e->getMessage(), $e->getTrace());
+                    $response->status(500);
+                } catch (\Throwable $e) {  //兜底
+                    Log::emergency($e->getMessage(), $e->getTrace());
+                    $response->status(500);
+                }
+            });
+            $http->start();
+        } catch (\Exception $e) {
+            print_r($e);
+        } catch (\Throwable $e) {
+            print_r($e);
+        }
     }
 
 
@@ -37,16 +78,14 @@ class Family
      */
     final public static function autoLoader($class)
     {
-        //定义rootPath
-        $rootPath = dirname(dirname(__DIR__));
 
         //把类转为目录，eg \a\b\c => /a/b/c.php
         $classPath = \str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
 
         //约定框架类都在framework目录下, 业务类都在application下
         $findPath = [
-            $rootPath . DIRECTORY_SEPARATOR . 'framework' . DIRECTORY_SEPARATOR,
-            $rootPath . DIRECTORY_SEPARATOR . 'application' . DIRECTORY_SEPARATOR,
+            self::$rootPath . DIRECTORY_SEPARATOR . 'framework' . DIRECTORY_SEPARATOR,
+            self::$rootPath . DIRECTORY_SEPARATOR . 'application' . DIRECTORY_SEPARATOR,
         ];
 
 
@@ -59,6 +98,7 @@ class Family
                 return;
             }
         }
+
 
     }
 }
