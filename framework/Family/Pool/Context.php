@@ -50,7 +50,5 @@ class Context
     {
         $id = Coroutine::getPid();
         self::$pool[$id] = $context;
-
-        Coroutine::create(function (){});
     }
 }
