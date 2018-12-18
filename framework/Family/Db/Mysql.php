@@ -2,6 +2,7 @@
 
 namespace Family\Db;
 
+use Family\Core\Log;
 use Swoole\Coroutine;
 use Swoole\Coroutine\MySQL as SwMySql;
 
@@ -103,8 +104,9 @@ class Mysql
         $sql = $arguments[0];
         $res = $this->chooseDb($sql);
         $db = $res['db'];
-        $result = call_user_func_array([$db, $name], $arguments);
-//        $result = $db->$name($sql);
+//        $result = call_user_func_array([$db, $name], $arguments);
+        $result = $db->$name($sql);
+        Log::info($sql);
         if (false === $result) {
             if (!$db->connected) { //断线重连
                 $db = $this->reconnect($res['type'], $res['index']);

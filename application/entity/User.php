@@ -3,7 +3,9 @@
 namespace entity;
 
 
-class User
+use Family\MVC\Entity;
+
+class User extends Entity
 {
     const TABLE_NAME = 'user';
     const PK_ID = 'id';
@@ -11,12 +13,4 @@ class User
     public $name;
     public $password;
 
-    public function __construct(array $array)
-    {
-        foreach ($array as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->$key = $value;
-            }
-        }
-    }
 }

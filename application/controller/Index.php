@@ -3,17 +3,16 @@
 //file: application/controller/Index.php
 namespace controller;
 
-use Family\Pool\Context;
+
+use Family\MVC\Controller;
 use service\User as UserService;
 
-class Index
+class Index extends Controller
 {
     public function index()
     {
-        //通过context拿到$request, 再也不用担收数据错乱了
-        $context = Context::getContext();
-        $request = $context->getRequest();
-        return 'i am family by route!' . json_encode($request->get);
+
+        return 'i am family by route!' . json_encode($this->request->get);
     }
 
     public function tong()
@@ -23,13 +22,10 @@ class Index
 
     public function user()
     {
-        //通过context拿到$request, 再也不用担收数据错乱了
-        $context = Context::getContext();
-        $request = $context->getRequest();
-        if (empty($request->get['uid'])) {
+        if (empty($this->request->get['uid'])) {
             throw new \Exception("uid 不能为空 ");
         }
-        $result = UserService::getInstance()->getUserInfoByUId($request->get['uid']);
+        $result = UserService::getInstance()->getUserInfoByUId($this->request->get['uid']);
         return json_encode($result);
 
     }
@@ -39,6 +35,32 @@ class Index
         $result = UserService::getInstance()->getUserInfoList();
         return json_encode($result);
 
+    }
+
+    public function add()
+    {
+        $array = [
+            'name' => $this->request->get['name'],
+            'password' => $this->request->get['password'],
+        ];
+
+        return UserService::getInstance()->add($array);
+    }
+
+    public function update()
+    {
+        $array = [
+            'name' => $this->request->get['name'],
+            'password' => $this->request->get['password'],
+        ];
+        $id = $this->request->get['id'];
+        return UserService::getInstance()->updateById($array, $id);
+    }
+
+    public function delete()
+    {
+        $id = $this->request->get['id'];
+        return UserService::getInstance()->deleteById($id);
     }
 
 }

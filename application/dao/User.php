@@ -3,7 +3,7 @@
 namespace dao;
 
 
-use Family\Db\Dao;
+use Family\MVC\Dao;
 use Family\Core\Singleton;
 
 class User extends Dao
