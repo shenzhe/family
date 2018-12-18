@@ -49,6 +49,25 @@ class Family
             $http->set([
                 "worker_num" => Config::get('worker_num'),
             ]);
+            $http->on('workerStart', function (\swoole_http_server $serv, int $worker_id) {
+                if (function_exists('opcache_reset')) {
+                    //清除opcache 缓存，swoole模式下其实可以关闭opcache
+                    opcache_reset();
+                }
+                $mysqlConfig = Config::get('mysql');
+                if (!empty($mysqlConfig)) {
+                    try {
+                        //配置了mysql, 初始化mysql连接池
+                        Pool\Mysql::getInstance($mysqlConfig);
+                    } catch (\Exception $e) {
+                        //初始化异常，关闭服务
+                        $serv->shutdown();
+                    } catch (\Throwable $throwable) {
+                        //初始化异常，关闭服务
+                        $serv->shutdown();
+                    }
+                }
+            });
             $http->on('request', function (\swoole_http_request $request, \swoole_http_response $response) {
                 try {
                     //初始化根协程ID
