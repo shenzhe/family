@@ -41,8 +41,8 @@ class Family
             //加载配置
             Config::load();
 
-            //日志初始化
-            Log::init();
+            $timeZone = Config::get('time_zone', 'Asia/Shanghai');
+            \date_default_timezone_set($timeZone);
 
             //通过读取配置获得ip、端口等
             $http = new Swoole\Http\Server(Config::get('host'), Config::get('port'));
@@ -52,20 +52,27 @@ class Family
             $http->on('workerStart', function (\swoole_http_server $serv, int $worker_id) {
                 if (function_exists('opcache_reset')) {
                     //清除opcache 缓存，swoole模式下其实可以关闭opcache
-                    opcache_reset();
+                    \opcache_reset();
                 }
-                $mysqlConfig = Config::get('mysql');
-                if (!empty($mysqlConfig)) {
-                    try {
+                try {
+                    //加载配置，让此处加载的配置可热更新
+                    Config::loadLazy();
+                    //日志初始化
+                    Log::init();
+
+                    $mysqlConfig = Config::get('mysql');
+                    if (!empty($mysqlConfig)) {
                         //配置了mysql, 初始化mysql连接池
                         Pool\Mysql::getInstance($mysqlConfig);
-                    } catch (\Exception $e) {
-                        //初始化异常，关闭服务
-                        $serv->shutdown();
-                    } catch (\Throwable $throwable) {
-                        //初始化异常，关闭服务
-                        $serv->shutdown();
                     }
+                } catch (\Exception $e) {
+                    //初始化异常，关闭服务
+                    print_r($e);
+                    $serv->shutdown();
+                } catch (\Throwable $throwable) {
+                    //初始化异常，关闭服务
+                    print_r($throwable);
+                    $serv->shutdown();
                 }
             });
             $http->on('request', function (\swoole_http_request $request, \swoole_http_response $response) {
@@ -83,25 +90,25 @@ class Family
                     });
 
                     //自动路由
-                    $result = Route::dispatch($request->server['path_info']);
+                    $result = Route::dispatch();
                     $response->end($result);
 
                 } catch (\Exception $e) { //程序异常
-                    Log::alert($e->getMessage(), $e->getTrace());
-                    $response->end($e->getMessage());
+                    Log::exception($e);
+                    $response->status(500);
                 } catch (\Error $e) { //程序错误，如fatal error
-                    Log::emergency($e->getMessage(), $e->getTrace());
+                    Log::exception($e);
                     $response->status(500);
                 } catch (\Throwable $e) {  //兜底
-                    Log::emergency($e->getMessage(), $e->getTrace());
+                    Log::exception($e);
                     $response->status(500);
                 }
             });
             $http->start();
         } catch (\Exception $e) {
             print_r($e);
-        } catch (\Throwable $e) {
-            print_r($e);
+        } catch (\Throwable $throwable) {
+            print_r($throwable);
         }
     }
 
@@ -118,7 +125,6 @@ class Family
 
         //约定框架类都在framework目录下, 业务类都在application下
         $findPath = [
-            self::$rootPath . DIRECTORY_SEPARATOR . 'framework' . DIRECTORY_SEPARATOR,
             self::$rootPath . DIRECTORY_SEPARATOR . 'application' . DIRECTORY_SEPARATOR,
         ];
 
@@ -132,7 +138,5 @@ class Family
                 return;
             }
         }
-
-
     }
 }

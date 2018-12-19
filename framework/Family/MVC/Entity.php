@@ -1,16 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: shenzhe
- * Date: 2018-12-18
- * Time: 17:08
- */
-
+//file framework/Family/MVC/Entity.php
 namespace Family\MVC;
 
 
 class Entity
 {
+    /**
+     * Entity constructor.
+     * @param array $array
+     * @desc 把数组填充到entity
+     */
     public function __construct(array $array)
     {
         if (empty($array)) {

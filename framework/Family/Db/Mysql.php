@@ -1,9 +1,8 @@
 <?php
-
+//file framework/Family/Db/Mysql.php
 namespace Family\Db;
 
 use Family\Core\Log;
-use Swoole\Coroutine;
 use Swoole\Coroutine\MySQL as SwMySql;
 
 class Mysql
@@ -65,7 +64,7 @@ class Mysql
         //通过type判断是主还是从
         if ('master' == $type) {
             //创建主数据连接
-            $master = new MySQL();
+            $master = new SwMySql();
             $res = $master->connect($this->config['master']);
             if ($res === false) {
                 //连接失败，抛弃常
@@ -79,7 +78,7 @@ class Mysql
 
         if (!empty($this->config['slave'])) {
             //创建从数据连接
-            $slave = new MySQL();
+            $slave = new SwMySql();
             $res = $slave->connect($this->config['slave'][$index]);
             if ($res === false) {
                 //连接失败，抛弃常
@@ -108,8 +107,10 @@ class Mysql
         $result = $db->$name($sql);
         Log::info($sql);
         if (false === $result) {
+            Log::warning('mysql query false', [$sql]);
             if (!$db->connected) { //断线重连
                 $db = $this->reconnect($res['type'], $res['index']);
+                Log::info('mysql reconnect', $res);
                 $result = $db->$name($sql);
                 return $this->parseResult($result, $db);
             }

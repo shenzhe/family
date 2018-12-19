@@ -58,7 +58,7 @@ class Coroutine
     public static function checkBaseCo()
     {
         $id = SwCo::getuid();
-        if (!empty(self::$idMaps[$id])) {
+        if (empty(self::$idMaps[$id])) {
             return false;
         }
 

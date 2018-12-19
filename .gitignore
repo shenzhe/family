@@ -2,3 +2,6 @@
 application/log
 .idea/*
 .idea/php.xml
+composer.lock
+test/
+vendor/

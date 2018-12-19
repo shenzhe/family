@@ -1,0 +1,24 @@
+{
+  "name": "family",
+  "description": "family framework",
+  "keywords": [
+    "swoole",
+    "mvc",
+    "coroutine"
+  ],
+  "authors": [
+    {
+      "name": "shenzhe",
+      "email": "shenzhe163@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Family\\": "framework/Family"
+    }
+  },
+  "require": {
+    "php": ">=7.0",
+    "nikic/fast-route": "*"
+  }
+}

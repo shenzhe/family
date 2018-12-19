@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: shenzhe
- * Date: 2018-12-17
- * Time: 19:44
- */
+//file framework/Family/MVC/Dao.php
 
 namespace Family\MVC;
 
@@ -15,8 +10,15 @@ use Family\Coroutine\Coroutine;
 
 class Dao
 {
+    /**
+     * @var entity名
+     */
     private $entity;
 
+    /**
+     * @var mysql连接数组
+     * @desc 不同协程不能复用mysql连接，所以通过协程id进行资源隔离
+     */
     private $dbs;
 
     /**
@@ -36,19 +38,24 @@ class Dao
         $this->entity = $entity;
         $coId = Coroutine::getId();
         if (empty($this->dbs[$coId])) {
-            //不同协程不对复用mysql连接，所以通过协程id进行资源隔离
+            //不同协程不能复用mysql连接，所以通过协程id进行资源隔离
+            //达到同一协程只用一个mysql连接，不同协程用不同的mysql连接
             $this->dbs[$coId] = MysqlPool::getInstance()->get();
             $entityRef = new \ReflectionClass($this->entity);
             $this->table = $entityRef->getConstant('TABLE_NAME');
             $this->pkId = $entityRef->getConstant('PK_ID');
             defer(function () {
-                //回收资源
+                //利用协程的defer特性，自动回收资源
                 $this->recycle();
             });
         }
         $this->db = $this->dbs[$coId];
     }
 
+    /**
+     * @throws \Exception
+     * @desc mysql资源回收到连接池
+     */
     public function recycle()
     {
         $coId = Coroutine::getId();
@@ -59,6 +66,10 @@ class Dao
         }
     }
 
+    /**
+     * @return mixed
+     * @desc 获取表名
+     */
     public function getLibName()
     {
         return $this->table;

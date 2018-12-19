@@ -20,6 +20,11 @@ class Index extends Controller
         return 'i am tong ge';
     }
 
+    /**
+     * @return false|string
+     * @throws \Exception
+     * @desc 返回一个用户信息
+     */
     public function user()
     {
         if (empty($this->request->get['uid'])) {
@@ -30,6 +35,10 @@ class Index extends Controller
 
     }
 
+    /**
+     * @return false|string
+     * @desc 返回用户列表
+     */
     public function list()
     {
         $result = UserService::getInstance()->getUserInfoList();
@@ -37,6 +46,10 @@ class Index extends Controller
 
     }
 
+    /**
+     * @return bool
+     * @desc 添加用户
+     */
     public function add()
     {
         $array = [
@@ -47,6 +60,11 @@ class Index extends Controller
         return UserService::getInstance()->add($array);
     }
 
+    /**
+     * @return bool
+     * @throws \Exception
+     * @desc 更新用户信息
+     */
     public function update()
     {
         $array = [
@@ -57,6 +75,11 @@ class Index extends Controller
         return UserService::getInstance()->updateById($array, $id);
     }
 
+    /**
+     * @return mixed
+     * @throws \Exception
+     * @desc 删除用户信息
+     */
     public function delete()
     {
         $id = $this->request->get['id'];
