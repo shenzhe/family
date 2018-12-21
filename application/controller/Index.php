@@ -11,8 +11,9 @@ class Index extends Controller
 {
     public function index()
     {
-
-        return 'i am family by route!' . json_encode($this->request->get);
+        return $this->template->render('index.twig', [
+            'name' => 'tong'
+        ]);
     }
 
     public function tong()
@@ -27,10 +28,11 @@ class Index extends Controller
      */
     public function user()
     {
-        if (empty($this->request->get['uid'])) {
+        $uid = $this->request->getQueryParam('uid');
+        if (empty($uid)) {
             throw new \Exception("uid 不能为空 ");
         }
-        $result = UserService::getInstance()->getUserInfoByUId($this->request->get['uid']);
+        $result = UserService::getInstance()->getUserInfoByUId($uid);
         return json_encode($result);
 
     }

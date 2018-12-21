@@ -1,7 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: shenzhe
- * Date: 2018-12-21
- * Time: 12:22
- */
+
+use Family\Family;
+
+return [
+    'template' => [
+        'path' => Family::$applicationPath . DS . 'template' . DS . 'default',    //模版目录, 空则默认 template/default
+        'cache' => Family::$applicationPath . DS . 'template' . DS . 'default_cache',    //缓存目录, 空则默认 template/default_cache
+    ]
+];

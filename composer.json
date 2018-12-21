@@ -19,6 +19,10 @@
   },
   "require": {
     "php": ">=7.0",
-    "nikic/fast-route": "*"
+    "nikic/fast-route": "*",
+    "easyswoole/http": "^1.0",
+    "twig/twig": "~1.0",
+    "ext-swoole": ">=4.2.9",
+    "ext-seaslog": ">=1.9.0"
   }
 }

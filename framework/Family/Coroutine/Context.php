@@ -4,16 +4,20 @@
 namespace Family\Coroutine;
 
 
+use EasySwoole\Http\Request;
+use EasySwoole\Http\Response;
+
 class Context
 {
     /**
-     * @var \swoole_http_request
+     * @var Request
      */
     private $request;
     /**
-     * @var \swoole_http_response
+     * @var Response
      */
     private $response;
+
     /**
      * @var array 一个array，可以存取想要的任何东西
      */
@@ -21,12 +25,12 @@ class Context
 
     public function __construct(\swoole_http_request $request, \swoole_http_response $response)
     {
-        $this->request = $request;
-        $this->response = $response;
+        $this->request = new Request($request);
+        $this->response = new Response($response);
     }
 
     /**
-     * @return \swoole_http_request
+     * @return Request
      */
     public function getRequest()
     {
@@ -34,7 +38,7 @@ class Context
     }
 
     /**
-     * @return \swoole_http_response
+     * @return Response
      */
     public function getResponse()
     {

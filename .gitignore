@@ -5,3 +5,4 @@ application/log
 composer.lock
 test/
 vendor/
+application/template/default_cache

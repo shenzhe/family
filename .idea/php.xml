@@ -5,6 +5,13 @@
       <path value="$PROJECT_DIR$/../ide-helper" />
       <path value="$PROJECT_DIR$/vendor/composer" />
       <path value="$PROJECT_DIR$/vendor/nikic/fast-route" />
+      <path value="$PROJECT_DIR$/vendor/easyswoole/component" />
+      <path value="$PROJECT_DIR$/vendor/easyswoole/curl" />
+      <path value="$PROJECT_DIR$/vendor/easyswoole/http" />
+      <path value="$PROJECT_DIR$/vendor/easyswoole/spl" />
+      <path value="$PROJECT_DIR$/vendor/easyswoole/validate" />
+      <path value="$PROJECT_DIR$/vendor/twig/twig" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-ctype" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.3" />

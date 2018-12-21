@@ -65,6 +65,7 @@ class Family
                         //配置了mysql, 初始化mysql连接池
                         Pool\Mysql::getInstance($mysqlConfig);
                     }
+
                 } catch (\Exception $e) {
                     //初始化异常，关闭服务
                     print_r($e);
@@ -76,32 +77,30 @@ class Family
                 }
             });
             $http->on('request', function (\swoole_http_request $request, \swoole_http_response $response) {
+                //初始化根协程ID
+                $coId = Coroutine::setBaseId();
+                //初始化上下文
+                $context = new Context($request, $response);
+                //存放容器pool
+                Pool\Context::set($context);
+                //协程退出，自动清空
+                defer(function () use ($coId) {
+                    //清空当前pool的上下文，释放资源
+                    Pool\Context::clear($coId);
+                });
                 try {
-                    //初始化根协程ID
-                    $coId = Coroutine::setBaseId();
-                    //初始化上下文
-                    $context = new Context($request, $response);
-                    //存放容器pool
-                    Pool\Context::set($context);
-                    //协程退出，自动清空
-                    defer(function () use ($coId) {
-                        //清空当前pool的上下文，释放资源
-                        Pool\Context::clear($coId);
-                    });
-
                     //自动路由
                     $result = Route::dispatch();
                     $response->end($result);
-
                 } catch (\Exception $e) { //程序异常
                     Log::exception($e);
-                    $response->status(500);
+                    $context->getResponse()->withStatus(500);
                 } catch (\Error $e) { //程序错误，如fatal error
                     Log::exception($e);
-                    $response->status(500);
+                    $context->getResponse()->withStatus(500);
                 } catch (\Throwable $e) {  //兜底
                     Log::exception($e);
-                    $response->status(500);
+                    $context->getResponse()->withStatus(500);
                 }
             });
             $http->start();
