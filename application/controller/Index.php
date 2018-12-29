@@ -55,8 +55,8 @@ class Index extends Controller
     public function add()
     {
         $array = [
-            'name' => $this->request->get['name'],
-            'password' => $this->request->get['password'],
+            'name' => $this->request->getQueryParam('name'),
+            'password' => $this->request->getQueryParam('name')
         ];
 
         return UserService::getInstance()->add($array);

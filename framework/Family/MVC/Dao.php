@@ -21,10 +21,6 @@ class Dao
      */
     private $dbs;
 
-    /**
-     * @var Mysql
-     */
-    private $db;
 
     //表名
     private $table;
@@ -32,24 +28,36 @@ class Dao
     //主键字段名
     private $pkId;
 
-
+    /**
+     * Dao constructor.
+     * @param $entity
+     * @throws \ReflectionException
+     */
     public function __construct($entity)
     {
         $this->entity = $entity;
+        $entityRef = new \ReflectionClass($this->entity);
+        $this->table = $entityRef->getConstant('TABLE_NAME');
+        $this->pkId = $entityRef->getConstant('PK_ID');
+    }
+
+    /**
+     * @return Mysql
+     * @throws \Exception
+     */
+    public function getDb()
+    {
         $coId = Coroutine::getId();
         if (empty($this->dbs[$coId])) {
             //不同协程不能复用mysql连接，所以通过协程id进行资源隔离
             //达到同一协程只用一个mysql连接，不同协程用不同的mysql连接
             $this->dbs[$coId] = MysqlPool::getInstance()->get();
-            $entityRef = new \ReflectionClass($this->entity);
-            $this->table = $entityRef->getConstant('TABLE_NAME');
-            $this->pkId = $entityRef->getConstant('PK_ID');
             defer(function () {
                 //利用协程的defer特性，自动回收资源
                 $this->recycle();
             });
         }
-        $this->db = $this->dbs[$coId];
+        return $this->dbs[$coId];
     }
 
     /**
@@ -130,6 +138,7 @@ class Dao
      * @param int $limit
      * @return mixed
      * @desc 通过条件查询
+     * @throws \Exception
      */
     public function fetchArray($where = '1', $fields = '*', $orderBy = null, $limit = 0)
     {
@@ -142,13 +151,14 @@ class Dao
         if ($limit) {
             $query .= " limit {$limit}";
         }
-        return $this->db->query($query);
+        return $this->getDb()->query($query);
     }
 
     /**
      * @param array $array
      * @return bool
      * @desc 插入一条记录
+     * @throws \Exception
      */
     public function add(array $array)
     {
@@ -160,7 +170,7 @@ class Dao
             $query .= 'ON DUPLICATE KEY UPDATE ' . $onDuplicate;
         }
         echo $query . PHP_EOL;
-        $result = $this->db->query($query);
+        $result = $this->getDb()->query($query);
         if (!empty($result['insert_id'])) {
             return $result['insert_id'];
         }
@@ -187,7 +197,7 @@ class Dao
         $strUpdateFields = rtrim($strUpdateFields, ',');
         $query = "UPDATE {$this->getLibName()} SET {$strUpdateFields} WHERE {$where}";
         echo $query;
-        $result = $this->db->query($query);
+        $result = $this->getDb()->query($query);
         return $result['affected_rows'];
     }
 
@@ -204,7 +214,7 @@ class Dao
         }
 
         $query = "DELETE FROM {$this->getLibName()} WHERE {$where}";
-        $result = $this->db->query($query);
+        $result = $this->getDb()->query($query);
         return $result['affected_rows'];
     }
 }
