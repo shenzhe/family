@@ -169,7 +169,6 @@ class Dao
         if (!empty($onDuplicate)) {
             $query .= 'ON DUPLICATE KEY UPDATE ' . $onDuplicate;
         }
-        echo $query . PHP_EOL;
         $result = $this->getDb()->query($query);
         if (!empty($result['insert_id'])) {
             return $result['insert_id'];
@@ -196,7 +195,6 @@ class Dao
         }
         $strUpdateFields = rtrim($strUpdateFields, ',');
         $query = "UPDATE {$this->getLibName()} SET {$strUpdateFields} WHERE {$where}";
-        echo $query;
         $result = $this->getDb()->query($query);
         return $result['affected_rows'];
     }
