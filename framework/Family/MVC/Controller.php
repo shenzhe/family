@@ -26,5 +26,4 @@ class Controller
         $this->template = Template::getInstance()->template;
     }
 
-
 }

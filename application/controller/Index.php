@@ -28,6 +28,7 @@ class Index extends Controller
      */
     public function user()
     {
+        //PSR7获取参数的规范
         $uid = $this->request->getQueryParam('uid');
         if (empty($uid)) {
             throw new \Exception("uid 不能为空 ");
