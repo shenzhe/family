@@ -12,7 +12,7 @@ trait Singleton
 
     /**
      * @param mixed ...$args
-     * @return Singleton
+     * @return mixed
      * @desc 进程内的全局单例
      */
     public static function getInstance(...$args)
@@ -59,5 +59,19 @@ trait Singleton
             });
         }
         return self::$coInstances[$coId];
+    }
+
+    /**
+     * @param mixed ...$args
+     * @return mixed
+     * @desc 按tag获取单例, 可用于static替换
+     */
+    public static function getInstanceByTag(...$args)
+    {
+        $tag = $args[0];
+        if (!isset(self::$coInstances[$tag])) {
+            self::$coInstances[$tag] = new static(...$args);
+        }
+        return self::$coInstances[$tag];
     }
 }

@@ -78,15 +78,15 @@ class Family
             });
             $http->on('request', function (\swoole_http_request $request, \swoole_http_response $response) {
                 //初始化根协程ID
-                $coId = Coroutine::setBaseId();
+                Coroutine::setBaseId();
                 //初始化上下文
                 $context = new Context($request, $response);
                 //存放容器pool
-                Pool\Context::set($context);
+                Pool\Context::getInstance()->put($context);
                 //协程退出，自动清空
-                defer(function () use ($coId) {
+                defer(function () {
                     //清空当前pool的上下文，释放资源
-                    Pool\Context::clear($coId);
+                    Pool\Context::getInstance()->release();
                 });
                 try {
                     //自动路由

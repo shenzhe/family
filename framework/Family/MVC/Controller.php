@@ -21,7 +21,10 @@ class Controller
     public function __construct()
     {
         //通过context拿到$request, 再也不用担收数据错乱了
-        $context = Context::getContext();
+        /**
+         * @var $context \Family\Coroutine\Context
+         */
+        $context = Context::getInstance()->get();
         $this->request = $context->getRequest();
         $this->template = Template::getInstance()->template;
     }

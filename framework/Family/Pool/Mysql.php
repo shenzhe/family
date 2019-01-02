@@ -5,7 +5,7 @@ namespace Family\Pool;
 use Family\Db\Mysql as DB;
 use chan;
 
-class Mysql
+class Mysql implements PoolInterface
 {
     private static $instance;
     private $pool;  //连接池容器，一个channel
@@ -56,10 +56,14 @@ class Mysql
 
     /**
      * @param $mysql
+     * @throws \Exception
      * @desc 放入一个mysql连接入池
      */
     public function put($mysql)
     {
+        if ($this->getLength() >= $this->config['pool_size']) {
+            throw new \Exception("pool full");
+        }
         $this->pool->push($mysql);
     }
 
@@ -86,4 +90,18 @@ class Mysql
         return $this->pool->length();
     }
 
+    public function release()
+    {
+        if ($this->getLength() < $this->config['pool_size']) {
+            //还有未归源的资源
+            return true;
+        }
+        for ($i = 0; $i < $this->config['pool_size']; $i++) {
+            $db = $this->pool->pop($this->config['pool_get_timeout']);
+            if (false !== $db) {
+                $db->release();
+            }
+        }
+        return $this->pool->close();
+    }
 }

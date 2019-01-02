@@ -172,4 +172,14 @@ class Mysql
         ];
     }
 
+    public function release()
+    {
+        $this->master->close();
+        if (!empty($this->slave)) {
+            foreach ($this->slave as $slave) {
+                $slave->close();
+            }
+        }
+    }
+
 }

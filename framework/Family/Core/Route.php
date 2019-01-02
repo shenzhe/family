@@ -16,9 +16,11 @@ class Route
      */
     public static function dispatch()
     {
-        $context = Context::getContext();
+        /**
+         * @var $context \Family\Coroutine\Context
+         */
+        $context = Context::getInstance()->get();
         $request = $context->getRequest();
-        $response = $context->getResponse();
         $path = $request->getUri()->getPath();
         if ('/favicon.ico' == $path) {
             return '';
