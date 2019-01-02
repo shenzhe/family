@@ -7,7 +7,7 @@ use chan;
 
 class Mysql implements PoolInterface
 {
-    private static $instance;
+    private static $instances;
     private $pool;  //连接池容器，一个channel
     private $config;
 
@@ -19,14 +19,24 @@ class Mysql implements PoolInterface
      */
     public static function getInstance($config = null)
     {
-        if (empty(self::$instance)) {
-            if (empty($config)) {
-                throw new \Exception("mysql config empty");
+
+        if (empty($config)) {
+            if (!empty(self::$instances)) {
+                //如果没有配置config, 默认返回第一个连接池
+                return current(self::$instances);
             }
-            self::$instance = new static($config);
+            throw new \Exception("mysql config empty");
         }
 
-        return self::$instance;
+        if (empty($config['name'])) {
+            $config['name'] = $config['master']['host'] . ':' . $config['master']['port'];
+        }
+
+        if (empty(self::$instances[$config['name']])) {
+            self::$instances[$config['name']] = new static($config);
+        }
+
+        return self::$instances[$config['name']];
     }
 
     /**
@@ -90,6 +100,10 @@ class Mysql implements PoolInterface
         return $this->pool->length();
     }
 
+    /**
+     * @return bool|mixed
+     * @desc 回收处理
+     */
     public function release()
     {
         if ($this->getLength() < $this->config['pool_size']) {

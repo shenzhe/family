@@ -172,6 +172,9 @@ class Mysql
         ];
     }
 
+    /**
+     * @desc 回收资源
+     */
     public function release()
     {
         $this->master->close();
@@ -180,6 +183,15 @@ class Mysql
                 $slave->close();
             }
         }
+    }
+
+    /**
+     * @return mixed
+     * @desc 返回配置信息
+     */
+    public function getConfig()
+    {
+        return $this->config;
     }
 
 }

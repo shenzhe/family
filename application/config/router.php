@@ -7,5 +7,8 @@ return [
         $r->get('/test', function () {
             return "i am test";
         });
+        $r->post('/post', function () {
+            return "must post method";
+        });
     }
 ];

@@ -28,7 +28,6 @@ class Index extends Controller
      */
     public function user()
     {
-        //PSR7获取参数的规范
         $uid = $this->request->getQueryParam('uid');
         if (empty($uid)) {
             throw new \Exception("uid 不能为空 ");
@@ -57,7 +56,7 @@ class Index extends Controller
     {
         $array = [
             'name' => $this->request->getQueryParam('name'),
-            'password' => $this->request->getQueryParam('name')
+            'password' => $this->request->getQueryParam('password'),
         ];
 
         return UserService::getInstance()->add($array);
@@ -71,10 +70,10 @@ class Index extends Controller
     public function update()
     {
         $array = [
-            'name' => $this->request->get['name'],
-            'password' => $this->request->get['password'],
+            'name' => $this->request->getQueryParam('name'),
+            'password' => $this->request->getQueryParam('password'),
         ];
-        $id = $this->request->get['id'];
+        $id = $this->request->getQueryParam('id');
         return UserService::getInstance()->updateById($array, $id);
     }
 
@@ -85,7 +84,7 @@ class Index extends Controller
      */
     public function delete()
     {
-        $id = $this->request->get['id'];
+        $id = $this->request->getQueryParam('id');
         return UserService::getInstance()->deleteById($id);
     }
 

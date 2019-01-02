@@ -27,16 +27,19 @@ class Route
         }
         $r = Config::get('router');
 
+        //没有路由配置或者配置不可执行，则走默认路由
         if (empty($r) || !is_callable($r)) {
             return self::normal($path, $request);
 
         }
 
-        //fastrouter
+        //引入fastrouter，进行路由检测
         $dispatcher = simpleDispatcher($r);
         $routeInfo = $dispatcher->dispatch($request->getMethod(), $path);
+
+        //匹配到了
         if (Dispatcher::FOUND === $routeInfo[0]) {
-            //匹配数组, 格式：['controllerName', 'MethodName']
+            //匹配的是数组, 格式：['controllerName', 'MethodName']
             if (is_array($routeInfo[1])) {
                 if (!empty($routeInfo[2]) && is_array($routeInfo[2])) {
                     //有默认参数
@@ -70,13 +73,14 @@ class Route
             return $result;
         }
 
+        //没找到路由，走默认的路由 http://xxx.com/{controllerName}/{MethodName}
         if (Dispatcher::NOT_FOUND === $routeInfo[0]) {
-            //没找到路由，走默认的路由 http://xxx.com/{controllerName}/{MethodName}
+
             return self::normal($path, $request);
 
         }
 
-
+        //匹配到了，但不允许的http method
         if (Dispatcher::METHOD_NOT_ALLOWED === $routeInfo[0]) {
             throw new \Exception("METHOD_NOT_ALLOWED");
         }

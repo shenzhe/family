@@ -3,6 +3,7 @@
 
 namespace Family\MVC;
 
+use Family\Core\Config;
 use Family\Db\Mysql;
 use Family\Pool\Mysql as MysqlPool;
 use Family\Coroutine\Coroutine;
@@ -29,16 +30,32 @@ class Dao
     private $pkId;
 
     /**
+     * @var 数据库配置名称, 用于处理多个数据库
+     */
+    private $dbTag;
+
+    /**
      * Dao constructor.
      * @param $entity
+     * @param $dbTag
      * @throws \ReflectionException
      */
-    public function __construct($entity)
+    public function __construct($entity, $dbTag = null)
     {
         $this->entity = $entity;
         $entityRef = new \ReflectionClass($this->entity);
         $this->table = $entityRef->getConstant('TABLE_NAME');
         $this->pkId = $entityRef->getConstant('PK_ID');
+        $this->dbTag = $dbTag;
+    }
+
+    /**
+     * @param $dbTag
+     * @desc 更换数据库连接池
+     */
+    public function setDbName($dbTag)
+    {
+        $this->dbTag = $dbTag;
     }
 
     /**
@@ -51,7 +68,12 @@ class Dao
         if (empty($this->dbs[$coId])) {
             //不同协程不能复用mysql连接，所以通过协程id进行资源隔离
             //达到同一协程只用一个mysql连接，不同协程用不同的mysql连接
-            $this->dbs[$coId] = MysqlPool::getInstance()->get();
+            if ($this->dbTag) {
+                $mysqlConfig = Config::get($this->dbTag);
+            } else {
+                $mysqlConfig = null;
+            }
+            $this->dbs[$coId] = MysqlPool::getInstance($mysqlConfig)->get();
             defer(function () {
                 //利用协程的defer特性，自动回收资源
                 $this->recycle();
@@ -69,7 +91,7 @@ class Dao
         $coId = Coroutine::getId();
         if (!empty($this->dbs[$coId])) {
             $mysql = $this->dbs[$coId];
-            MysqlPool::getInstance()->put($mysql);
+            MysqlPool::getInstance($mysql->getConfig())->put($mysql);
             unset($this->dbs[$coId]);
         }
     }

@@ -7,7 +7,7 @@ return [
             'host' => '127.0.0.1',   //数据库ip
             'port' => 3306,          //数据库端口
             'user' => 'root',        //数据库用户名
-            'password' => 'asdf357', //数据库密码
+            'password' => '123456', //数据库密码
             'database' => 'test',   //默认数据库名
             'timeout' => 0.5,       //数据库连接超时时间
             'charset' => 'utf8mb4', //默认字符集
