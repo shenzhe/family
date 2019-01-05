@@ -42,6 +42,7 @@ class Context implements PoolInterface
         $id = Coroutine::getPid();
         if (isset($this->pool[$id])) {
             unset($this->pool[$id]);
+            Coroutine::clear($id);
         }
     }
 

@@ -119,7 +119,7 @@ class Coroutine
      * @param null $id
      * @desc 协程退出，清除关系树
      */
-    public function clear($id = null)
+    public static function clear($id = null)
     {
         if (null === $id) {
             $id = self::getId();
