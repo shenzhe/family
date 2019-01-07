@@ -7,3 +7,4 @@ test/
 vendor/
 application/template/default_cache
 *.bak
+*.pid

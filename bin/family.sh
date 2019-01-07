@@ -36,7 +36,7 @@ getManagerPid()
     if [ ! -f "$BIN_PATH/manager.pid" ];then
         echo ''
     else
-        MID=PID=`cat $BIN_PATH/manager.pid`
+        MID=`cat $BIN_PATH/manager.pid`
         echo $MID
     fi
 }
@@ -95,7 +95,7 @@ case "$1" in
                     echo "server is not running"
                     exit 1
                 fi
-                echo "Reload server ing..."
+                echo "Reload server ing... $MID"
                 kill -USR1 $MID
                 echo " done"
         ;;
