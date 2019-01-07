@@ -159,7 +159,7 @@ class Log
     public static function log($level, $message, array $context = array(), $module = '')
     {
         if (self::$seaslog) {
-            SeasLog::log($message, $context, $module);
+            SeasLog::log($level, $message, $context, $module);
         }
     }
 

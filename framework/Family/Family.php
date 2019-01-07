@@ -46,9 +46,27 @@ class Family
 
             //通过读取配置获得ip、端口等
             $http = new Swoole\Http\Server(Config::get('host'), Config::get('port'));
-            $http->set([
-                "worker_num" => Config::get('worker_num'),
-            ]);
+            $http->set(Config::get('swoole_setting'));
+            $http->on('start', function (\swoole_server $serv) {
+                //服务启动
+                //日志初始化
+                Log::init();
+                file_put_contents(self::$rootPath . DS . 'bin' . DS . 'master.pid', $serv->master_pid);
+                file_put_contents(self::$rootPath . DS . 'bin' . DS . 'manager.pid', $serv->manager_pid);
+                Log::info("http server start! {host}: {port}, masterId:{masterId}, managerId: {managerId}", [
+                    '{host}' => Config::get('host'),
+                    '{port}' => Config::get('port'),
+                    '{masterId}' => $serv->master_pid,
+                    '{managerId}' => $serv->manager_pid,
+                ]);
+            });
+
+            $http->on('shutdown', function () {
+                //服务关闭，删除进程id
+                unlink(self::$rootPath . 'DS' . 'bin' . DS . 'master.pid');
+                unlink(self::$rootPath . 'DS' . 'bin' . DS . 'manager.pid');
+                Log::info("http server shutdown");
+            });
             $http->on('workerStart', function (\swoole_http_server $serv, int $worker_id) {
                 if (function_exists('opcache_reset')) {
                     //清除opcache 缓存，swoole模式下其实可以关闭opcache
@@ -59,7 +77,6 @@ class Family
                     Config::loadLazy();
                     //日志初始化
                     Log::init();
-
                     $mysqlConfig = Config::get('mysql');
                     if (!empty($mysqlConfig)) {
                         //配置了mysql, 初始化mysql连接池
