@@ -3,7 +3,6 @@
 namespace Family\Core;
 
 use Family\Family;
-use Family\Helper\Dir;
 
 class Config
 {
@@ -19,8 +18,7 @@ class Config
      */
     public static function load()
     {
-        $configPath = Family::$applicationPath .
-            DS . 'config';
+        $configPath = Family::$applicationPath . DS . 'config';
         self::$config = \Noodlehaus\Config::load($configPath . DS . 'default.php');
     }
 
