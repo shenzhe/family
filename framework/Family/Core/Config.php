@@ -11,7 +11,7 @@ class Config
     /**
      * @var 配置map
      */
-    public static $configMap = [];
+    public static $config = null;
 
     /**
      * @desc 读取配置，默认是application/config/default.php
@@ -21,8 +21,7 @@ class Config
     {
         $configPath = Family::$applicationPath .
             DS . 'config';
-        self::$configMap = require $configPath .
-            DS . 'default.php';
+        self::$config = \Noodlehaus\Config::load($configPath . DS . 'default.php');
     }
 
     /**
@@ -31,20 +30,9 @@ class Config
      */
     public static function loadLazy()
     {
-        $configPath = Family::$applicationPath .
-            DS . 'config';
-        $files = Dir::tree($configPath, "/.php$/");
-        if (!empty($files)) {
-            foreach ($files as $dir => $filelist) {
-                foreach ($filelist as $file) {
-                    if ('default.php' == $file) {
-                        continue;
-                    }
-                    $filename = $dir . DS . $file;
-                    self::$configMap += include "{$filename}";
-                }
-            }
-        }
+        $configPath = Family::$applicationPath . DS . 'config/lazy';
+        $config = new \Noodlehaus\Config($configPath);
+        self::$config->merge($config);
     }
 
     /**
@@ -56,10 +44,6 @@ class Config
      */
     public static function get($key, $def = null)
     {
-        if (isset(self::$configMap[$key])) {
-            return self::$configMap[$key];
-        }
-
-        return $def;
+        return self::$config->get($key, $def);
     }
 }

@@ -16,10 +16,9 @@ class Template
 
     public function __construct()
     {
-        $templateConfig = Config::get('template');
-        $loader = new FilesystemLoader($templateConfig['path']);
+        $loader = new FilesystemLoader(Config::get('template.path'));
         $this->template = new Environment($loader, array(
-            'cache' => $templateConfig['cache'],
+            'cache' => Config::get('template.cache'),
         ));
     }
 }

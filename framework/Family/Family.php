@@ -63,8 +63,8 @@ class Family
 
             $http->on('shutdown', function () {
                 //服务关闭，删除进程id
-                unlink(self::$rootPath . 'DS' . 'bin' . DS . 'master.pid');
-                unlink(self::$rootPath . 'DS' . 'bin' . DS . 'manager.pid');
+                unlink(self::$rootPath . DS . 'bin' . DS . 'master.pid');
+                unlink(self::$rootPath . DS . 'bin' . DS . 'manager.pid');
                 Log::info("http server shutdown");
             });
             $http->on('workerStart', function (\swoole_http_server $serv, int $worker_id) {
