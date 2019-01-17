@@ -36,7 +36,7 @@ class Mysql
         if (!empty($config['slave'])) {
             //创建从数据库连接
             foreach ($config['slave'] as $conf) {
-                $slave = new MySQL();
+                $slave = new SwMySql();
                 $res = $slave->connect($conf);
                 if ($res === false) {
                     //连接失败，抛弃常
