@@ -1,5 +1,5 @@
 #!/bin/bash
-DIR=`pwd`
+DIR=$(cd `dirname $0`; pwd)
 checkExt=php
 fswatch $DIR/.. | while read file
 do

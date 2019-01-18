@@ -13,7 +13,7 @@
 #php路径，如不知道在哪，可以用whereis php尝试
 PHP_BIN=`which php`
 #bin目录
-BIN_PATH=`pwd`
+BIN_PATH=$(cd `dirname $0`; pwd)
 #入口文件
 SERVER_PATH=$BIN_PATH/..
 #脚本执行地址, 可修改为你的php运行脚本#########
@@ -50,7 +50,7 @@ case "$1" in
                     exit 1
                 fi
                 echo "Starting server "
-                $PHP_BIN $APPLICATION_FILE
+                echo `$PHP_BIN $APPLICATION_FILE`
                 echo " done"
         ;;
         #停止服务
