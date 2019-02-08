@@ -4,21 +4,18 @@
 namespace controller;
 
 
-use Family\MVC\Controller;
 use service\User as UserService;
 
-class Index extends Controller
+class Index extends Base
 {
     public function index()
     {
-        return $this->template->render('index.twig', [
-            'name' => 'tong'
-        ]);
+        return $this->template(['name' => 'tong']);
     }
 
     public function tong()
     {
-        return 'i am tong ge';
+        return $this->json('i am tong ge');
     }
 
     /**
@@ -33,8 +30,7 @@ class Index extends Controller
             throw new \Exception("uid 不能为空 ");
         }
         $result = UserService::getInstance()->getUserInfoByUId($uid);
-        return json_encode($result);
-
+        return $this->json($result);
     }
 
     /**
@@ -44,7 +40,7 @@ class Index extends Controller
     public function list()
     {
         $result = UserService::getInstance()->getUserInfoList();
-        return json_encode($result);
+        return $this->json($result);
 
     }
 
@@ -59,7 +55,7 @@ class Index extends Controller
             'password' => $this->request->getQueryParam('password'),
         ];
 
-        return UserService::getInstance()->add($array);
+        return $this->json(UserService::getInstance()->add($array));
     }
 
     /**
@@ -74,7 +70,7 @@ class Index extends Controller
             'password' => $this->request->getQueryParam('password'),
         ];
         $id = $this->request->getQueryParam('id');
-        return UserService::getInstance()->updateById($array, $id);
+        return $this->json(UserService::getInstance()->updateById($array, $id));
     }
 
     /**
@@ -85,7 +81,7 @@ class Index extends Controller
     public function delete()
     {
         $id = $this->request->getQueryParam('id');
-        return UserService::getInstance()->deleteById($id);
+        return $this->json(UserService::getInstance()->deleteById($id));
     }
 
 }

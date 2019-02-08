@@ -7,6 +7,7 @@ use Family\Core\Log;
 use Family\Core\Route;
 use Family\Coroutine\Context;
 use Family\Coroutine\Coroutine;
+use Family\Helper\Template;
 use Swoole;
 
 
@@ -68,9 +69,11 @@ class Family
                 Log::info("http server shutdown");
             });
             $http->on('workerStart', function (\swoole_http_server $serv, int $worker_id) {
-                if (function_exists('opcache_reset')) {
-                    //清除opcache 缓存，swoole模式下其实可以关闭opcache
-                    \opcache_reset();
+                if (1 == $worker_id) {
+                    if (function_exists('opcache_reset')) {
+                        //清除opcache 缓存，swoole模式下其实可以关闭opcache
+                        \opcache_reset();
+                    }
                 }
                 try {
                     //加载配置，让此处加载的配置可热更新

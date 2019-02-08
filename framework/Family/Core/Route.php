@@ -3,6 +3,7 @@
 namespace Family\Core;
 
 
+use EasySwoole\Http\Request;
 use Family\MVC\Controller;
 use Family\Pool\Context;
 use FastRoute\Dispatcher;
@@ -27,6 +28,7 @@ class Route
         }
         $r = Config::get('router');
 
+
         //没有路由配置或者配置不可执行，则走默认路由
         if (empty($r) || !is_callable($r)) {
             return self::normal($path, $request);
@@ -48,19 +50,34 @@ class Route
                 }
                 $request->withAttribute(Controller::_CONTROLLER_KEY_, $routeInfo[1][0]);
                 $request->withAttribute(Controller::_METHOD_KEY_, $routeInfo[1][1]);
-                $controller = new $routeInfo[1][0]();
+                $controllerName = "controller\\" . $routeInfo[1][0];
+                $controller = new $controllerName();
                 $methodName = $routeInfo[1][1];
                 $result = $controller->$methodName();
             } elseif (is_string($routeInfo[1])) {
                 //字符串, 格式：controllerName@MethodName
                 list($controllerName, $methodName) = explode('@', $routeInfo[1]);
                 if (!empty($routeInfo[2]) && is_array($routeInfo[2])) {
-                    //有默认参数
-                    $params = $request->getQueryParams() + $routeInfo[2];
-                    $request->withQueryParams($params);
+
+                    if('{c}' === $controllerName && !empty($routeInfo[2]['c'])) {
+                        $controllerName = $routeInfo[2]['c'];
+                        unset($routeInfo[2]['c']);
+                    }
+
+                    if('{m}' === $methodName && !empty($routeInfo[2]['m'])) {
+                        $methodName = $routeInfo[2]['m'];
+                        unset($routeInfo[2]['m']);
+                    }
+
+                    if(!empty($routeInfo[2])) {
+                        //有默认参数
+                        $params = $request->getQueryParams() + $routeInfo[2];
+                        $request->withQueryParams($params);
+                    }
                 }
                 $request->withAttribute(Controller::_CONTROLLER_KEY_, $controllerName);
                 $request->withAttribute(Controller::_METHOD_KEY_, $methodName);
+                $controllerName = "controller\\" . $controllerName;
                 $controller = new $controllerName();
                 $result = $controller->$methodName();
             } elseif (is_callable($routeInfo[1])) {
@@ -88,7 +105,7 @@ class Route
 
     /**
      * @param $path
-     * @param $request
+     * @param $request Request
      * @return mixed
      * @desc 没有匹配到路由，走默认的路由规则 http://xxx.com/{controllerName}/{MethodName}
      */
@@ -113,8 +130,8 @@ class Route
                 }
             }
         }
-        $controllerName = "controller\\{$controllerName}";
         $request->withAttribute(Controller::_CONTROLLER_KEY_, $controllerName);
+        $controllerName = "controller\\{$controllerName}";
         $request->withAttribute(Controller::_METHOD_KEY_, $methodName);
         $controller = new $controllerName();
         return $controller->$methodName();

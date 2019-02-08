@@ -9,6 +9,10 @@ use Family\Pool\Context;
 
 class Controller
 {
+
+    /**
+     * @var \EasySwoole\Http\Request
+     */
     protected $request;
     /**
      * @var \Twig\Environment

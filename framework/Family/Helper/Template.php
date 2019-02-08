@@ -20,6 +20,14 @@ class Template
         $loader = new FilesystemLoader($templateConfig['path']);
         $this->template = new Environment($loader, array(
             'cache' => $templateConfig['cache'],
+            'auto_reload' => true
         ));
+    }
+
+    public function clear()
+    {
+        if ($this->template) {
+            $this->template->clearTemplateCache();
+        }
     }
 }
